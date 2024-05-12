@@ -1,0 +1,68 @@
+version: "1"
+
+services:
+    userswebapi:
+        image: userswebapi
+        container_name: userswebapi
+        ports:
+            - 5246:8080
+        build:
+            context: .
+            dockerfile: UsersWebApi.dockerfile
+        depends_on:
+            - mongo
+            - mssql
+        networks:
+            - defaultnetwork
+
+    bookswebapi:
+        image: bookswebapi
+        ports:
+            - 5283:8080
+        container_name: bookswebapi
+        build:
+            context: .
+            dockerfile: BooksWebApi.dockerfile
+        depends_on:
+            - mongo
+            - mssql
+        networks:
+            - defaultnetwork
+
+    mongo:
+        image: mongo
+        container_name: mongoDb
+        build:
+            context: .
+            dockerfile: Mongo.dockerfile
+        ports:
+            - 27017:27017
+        networks:
+            - defaultnetwork
+        volumes:
+            - mongovolume:/data/db
+            - mongovolume:/data/confidb
+
+    mssql:
+        image: mssql
+        container_name: mssqlDb
+        user: root
+        build:
+            context: .
+            dockerfile: Mssql.dockerfile
+        volumes:
+            - mssqlvolume:/var/opt/mssql/data
+            - mssqlvolume:/var/opt/mssql/log
+            - mssqlvolume:/var/opt/mssql/secrets
+        ports:
+            - 15241:1433
+        networks:
+            - defaultnetwork
+
+networks:
+    defaultnetwork:
+        driver: bridge
+
+volumes:
+    mongovolume:
+    mssqlvolume:
