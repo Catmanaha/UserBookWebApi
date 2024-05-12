@@ -1,0 +1,6 @@
+FROM mcr.microsoft.com/mssql/server
+
+ENV ACCEPT_EULA=Y
+ENV MSSQL_SA_PASSWORD=TOmik20081515!
+
+EXPOSE 1433
