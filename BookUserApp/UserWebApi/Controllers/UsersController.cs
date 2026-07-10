@@ -18,8 +18,9 @@ public class UsersController(IUserService userService) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<DetailsResponse> Details(int id)
+    public async Task<ActionResult<DetailsResponse>> Details(int id)
     {
-        return await userService.GetDetails(id);
+        var details = await userService.GetDetails(id);
+        return details is null ? NotFound() : Ok(details);
     }
 }
