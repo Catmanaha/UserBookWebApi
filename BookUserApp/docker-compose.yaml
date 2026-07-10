@@ -1,5 +1,3 @@
-version: "1"
-
 services:
     userswebapi:
         image: userswebapi
@@ -10,8 +8,11 @@ services:
             context: .
             dockerfile: UsersWebApi.dockerfile
         depends_on:
-            - mongo
             - mssql
+            - bookswebapi
+        environment:
+            ConnectionStrings__DefaultConnectionString: "Server=mssql;Database=UserBookDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:?MSSQL_SA_PASSWORD is required};TrustServerCertificate=True;"
+            BooksApiBaseAddress: "http://bookswebapi:8080/"
         networks:
             - defaultnetwork
 
@@ -25,35 +26,31 @@ services:
             dockerfile: BooksWebApi.dockerfile
         depends_on:
             - mongo
-            - mssql
+        environment:
+            MongoDbOption__MongoDbConnectionString: "mongodb://mongo:27017"
+            MongoDbOption__DatabaseName: "UserBookDb"
+            MongoDbOption__CollectionName: "Books"
         networks:
             - defaultnetwork
 
     mongo:
-        image: mongo
+        image: mongo:7
         container_name: mongoDb
-        build:
-            context: .
-            dockerfile: Mongo.dockerfile
         ports:
             - 27017:27017
         networks:
             - defaultnetwork
         volumes:
             - mongovolume:/data/db
-            - mongovolume:/data/confidb
 
     mssql:
-        image: mssql
+        image: mcr.microsoft.com/mssql/server:2022-latest
         container_name: mssqlDb
-        user: root
-        build:
-            context: .
-            dockerfile: Mssql.dockerfile
+        environment:
+            ACCEPT_EULA: "Y"
+            MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:?MSSQL_SA_PASSWORD is required}"
         volumes:
-            - mssqlvolume:/var/opt/mssql/data
-            - mssqlvolume:/var/opt/mssql/log
-            - mssqlvolume:/var/opt/mssql/secrets
+            - mssqlvolume:/var/opt/mssql
         ports:
             - 15241:1433
         networks:

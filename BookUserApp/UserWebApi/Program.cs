@@ -11,17 +11,27 @@ builder.Services.AddControllers();
 
 builder.Services.AddHttpClient<IUserService, UserMsSqlService>(o =>
 {
-    var baseAddress = builder.Configuration.GetSection("BooksApiBaseAddress").Value;
+    var baseAddress = builder.Configuration["BooksApiBaseAddress"];
 
-    if (baseAddress != null)
+    if (string.IsNullOrWhiteSpace(baseAddress))
     {
-        o.BaseAddress = new Uri(baseAddress);
+        throw new InvalidOperationException("BooksApiBaseAddress is required.");
     }
+
+    o.BaseAddress = new Uri(baseAddress);
 });
 
 builder.Services.AddDbContext<MyDbContext>(o =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new InvalidOperationException(
+            "ConnectionStrings:DefaultConnectionString is required."
+        );
+    }
+
     o.UseSqlServer(connectionString);
 });
 

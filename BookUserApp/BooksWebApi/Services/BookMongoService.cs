@@ -16,8 +16,6 @@ public class BookMongoService(IOptionsSnapshot<MongoDbOption> optionsSnapshot) :
     public async Task Create(BookCreateRequest book)
     {
         var db = client.GetDatabase(databaseName);
-        db.CreateCollection(collectionName);
-
         await db.GetCollection<Book>(collectionName).InsertOneAsync(new Book
         {
             Name = book.Name,
@@ -30,7 +28,6 @@ public class BookMongoService(IOptionsSnapshot<MongoDbOption> optionsSnapshot) :
     public async Task<IEnumerable<Book>> GetAllForUser(int userId)
     {
         var db = client.GetDatabase(databaseName);
-        db.CreateCollection(collectionName);
         var books = db.GetCollection<Book>(collectionName);
         return await books.Find(Builders<Book>.Filter.Eq("UserId", userId)).ToListAsync();
     }

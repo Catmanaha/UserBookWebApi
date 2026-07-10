@@ -4,6 +4,6 @@ namespace UserWebApi.Responses;
 
 public class DetailsResponse
 {
-    public User User { get; set; }
-    public IEnumerable<Book> Books { get; set; }
+    public required User User { get; set; }
+    public required IEnumerable<Book> Books { get; set; }
 }

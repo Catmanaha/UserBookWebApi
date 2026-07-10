@@ -8,7 +8,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
-builder.Services.Configure<MongoDbOption>(builder.Configuration.GetSection("MongoDbOption"));
+builder.Services
+    .AddOptions<MongoDbOption>()
+    .Bind(builder.Configuration.GetSection("MongoDbOption"))
+    .Validate(
+        options => !string.IsNullOrWhiteSpace(options.MongoDbConnectionString),
+        "MongoDbOption:MongoDbConnectionString is required"
+    )
+    .Validate(
+        options => !string.IsNullOrWhiteSpace(options.DatabaseName),
+        "MongoDbOption:DatabaseName is required"
+    )
+    .Validate(
+        options => !string.IsNullOrWhiteSpace(options.CollectionName),
+        "MongoDbOption:CollectionName is required"
+    )
+    .ValidateOnStart();
 
 builder.Services.AddScoped<IBookService, BookMongoService>();
 
