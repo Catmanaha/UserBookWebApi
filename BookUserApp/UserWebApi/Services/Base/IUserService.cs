@@ -6,5 +6,5 @@ namespace UserWebApi.Services.Base;
 public interface IUserService
 {
     public Task Create(UserCreateRequest user);
-    public Task<DetailsResponse> GetDetails(int userId);
+    public Task<DetailsResponse?> GetDetails(int userId);
 }

@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore BookUserApp/BookUserApp.sln
+
+      - name: Build
+        run: dotnet build BookUserApp/BookUserApp.sln --configuration Release --no-restore
+
+      - name: Check vulnerable packages
+        run: dotnet list BookUserApp/BookUserApp.sln package --vulnerable --include-transitive

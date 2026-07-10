@@ -373,6 +373,10 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
+# Docker Compose environment values can contain database credentials.
+.env
+!.env.example
+
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 

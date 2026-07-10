@@ -19,15 +19,23 @@ public class UserMsSqlService(MyDbContext context, HttpClient client) : IUserSer
         await context.SaveChangesAsync();
     }
 
-    public async Task<DetailsResponse> GetDetails(int userId)
+    public async Task<DetailsResponse?> GetDetails(int userId)
     {
-        var request = await client.GetFromJsonAsync<IEnumerable<Book>>($"api/Books/GetAllForUser?id={userId}");
         var user = await context.Users.FirstOrDefaultAsync(o => o.Id == userId);
+
+        if (user is null)
+        {
+            return null;
+        }
+
+        var books = await client.GetFromJsonAsync<IEnumerable<Book>>(
+            $"api/Books/GetAllForUser?id={userId}"
+        );
 
         return new DetailsResponse
         {
             User = user,
-            Books = request
+            Books = books ?? [],
         };
     }
 }
