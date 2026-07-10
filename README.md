@@ -79,5 +79,4 @@ docker compose -f BookUserApp/docker-compose.yaml config
   currently makes the combined details request fail.
 - There is no authentication or authorization.
 - SQL Server migrations exist, but Compose does not automatically apply them.
-- A SQL Server password was committed in earlier history. Any reused credential
-  must be rotated; current-tree cleanup does not rewrite shared history.
+- Application secrets are supplied through runtime configuration and are not committed.
