@@ -1,16 +1,11 @@
 # UserBookWebApi
 
-UserBookWebApi is a learning project composed of two ASP.NET Core services:
+I built UserBookWebApi to learn how two ASP.NET Core services can work together while using different databases:
 
-- `UserWebApi` stores users in SQL Server through Entity Framework Core.
-- `BooksWebApi` stores per-user books in MongoDB.
+- `UserWebApi` stores users in SQL Server with Entity Framework Core.
+- `BooksWebApi` stores each user's books in MongoDB.
 
-The user service calls the books service to assemble a combined details
-response. The project demonstrates service-to-service HTTP, two persistence
-models, Docker Compose, and explicit configuration boundaries. It is not a
-production microservice deployment.
-
-## Request flow
+The user service calls the books service when it needs to return a combined user-and-books response. A missing user returns HTTP 404 without calling the books service, while an existing user with no books gets an empty collection.
 
 ```text
 client
@@ -24,35 +19,36 @@ UserWebApi ----> SQL Server
 combined user + books response
 ```
 
-If a requested user does not exist, `UserWebApi` returns HTTP 404 without
-calling the books service. An existing user with no books receives an empty
-collection.
+## Stack
+
+- .NET 10 and ASP.NET Core
+- Entity Framework Core and SQL Server
+- MongoDB
+- Docker Compose
 
 ## Run with Docker Compose
 
-Requirements: Docker with Compose support.
+You need Docker with Compose support.
 
 ```powershell
 Set-Location BookUserApp
 Copy-Item .env.example .env
-# Replace the placeholder in .env with a strong local-only SQL Server password.
+# Replace the placeholder with a strong password used only for local SQL Server.
 docker compose up --build
 ```
 
-Services are exposed locally at:
+The local services are available at:
 
 - User API and Swagger: `http://localhost:5246/swagger`
 - Books API and Swagger: `http://localhost:5283/swagger`
 - MongoDB: `localhost:27017`
 - SQL Server: `localhost:15241`
 
-Compose injects database connection strings at runtime. No populated `.env`
-file or application development settings should be committed.
+Compose reads the database settings at runtime. Do not commit the populated `.env` file.
 
 ## Build without containers
 
-The services require .NET 10. Configure these environment variables before
-running them directly:
+Set the service configuration before building or running directly:
 
 ```powershell
 $env:MongoDbOption__MongoDbConnectionString = "mongodb://localhost:27017"
@@ -64,7 +60,9 @@ $env:BooksApiBaseAddress = "http://localhost:5283/"
 dotnet build BookUserApp/BookUserApp.sln --configuration Release
 ```
 
-## Verification
+## Checks
+
+There are no automated tests yet. These commands build both services, check dependencies, and validate the Compose file:
 
 ```powershell
 dotnet build BookUserApp/BookUserApp.sln --configuration Release
@@ -72,11 +70,9 @@ dotnet list BookUserApp/BookUserApp.sln package --vulnerable --include-transitiv
 docker compose -f BookUserApp/docker-compose.yaml config
 ```
 
-## Current limitations
+## Still to do
 
-- There are no automated tests yet.
-- Cross-service failure handling is minimal; an unavailable books service
-  currently makes the combined details request fail.
-- There is no authentication or authorization.
-- SQL Server migrations exist, but Compose does not automatically apply them.
-- Application secrets are supplied through runtime configuration and are not committed.
+- Add automated tests.
+- Handle an unavailable books service more gracefully.
+- Add authentication and authorization.
+- Apply the existing SQL Server migrations automatically when using Compose.
